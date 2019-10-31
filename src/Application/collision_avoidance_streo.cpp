@@ -16,7 +16,7 @@
 #include <px4_command/ControlCommand.h>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Pose.h>
-
+#include <px4_command/DroneState.h>
 using namespace std;
  
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>全 局 变 量<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -41,10 +41,12 @@ void streo_cb(const geometry_msgs::Point::ConstPtr& msg)
     Streo_distance = *msg;
 }
 
-void pos_cb(const geometry_msgs::Pose::ConstPtr& msg)
+void drone_state_cb(const px4_command::DroneState::ConstPtr& msg)
 {
-    pos_drone = *msg;
-
+    px4_command::DroneState state;
+    pos_drone.position.x = state.position[0];
+    pos_drone.position.y = state.position[1];
+    pos_drone.position.z = state.position[2];
 }
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>主 函 数<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 int main(int argc, char **argv)
@@ -58,8 +60,9 @@ int main(int argc, char **argv)
     // streo
     ros::Subscriber streo_sub = nh.subscribe<geometry_msgs::Point>("/streo_distance", 100, streo_cb);
 
-    //【订阅】无人机当前位置 坐标系 NED系
-    ros::Subscriber position_sub = nh.subscribe<geometry_msgs::Pose>("/drone/pos", 100, pos_cb);
+    //【订阅】无人机当前状态
+    // 本话题来自根据需求自定px4_pos_estimator.cpp
+    ros::Subscriber drone_state_sub = nh.subscribe<px4_command::DroneState>("/px4_command/drone_state", 10, drone_state_cb);
 
     // 【发布】发送给position_control.cpp的命令
     ros::Publisher command_pub = nh.advertise<px4_command::ControlCommand>("/px4_command/control_command", 10);
