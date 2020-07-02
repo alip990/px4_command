@@ -1,3 +1,7 @@
+
+**本项目已不再维护，感兴趣的小伙伴请移步：https://github.com/amov-lab/Prometheus**
+
+
 # px4_command
 
 # 简介
